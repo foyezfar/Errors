@@ -13,3 +13,8 @@ Solution
 [oracle@oracledb ~]$ sudo  mount -t tmpfs shmfs -o size=3G /dev/shm
 
 
+Permanent Solution
+================================================
+[root@oracledb ~]# vim /etc/fstab
+
+tmpfs      /dev/shm                                      tmpfs   defaults,size=2G   0   0
