@@ -1,0 +1,31 @@
+How to increase PROCESSES initialization parameter. ORA-00020 maximum number of processes exceeded
+
+select * from v$resource_limit where RESOURCE_NAME in ('sessions','processes','transactions');
+
+Check Current Setting of Parameters
+
+   sql> show parameter sessions;
+   sql> show parameter processes;
+   sql> show parameter transactions;
+
+If you are planning to increase "PROCESSES" parameter you should also plan to increase "sessions and "transactions" parameters
+
+   A basic formula for determining these parameter values is as follows:
+      processes=x
+      sessions=x*1.1+5
+      transactions=sessions*1.1	  
+
+	For Oracle 12c onward,
+It is calculated from PROCESSES parameter:
+(1.5 * PROCESSES) + 22)
+You may leave SESSIONS and let Database choose its value automatically."
+TRANSACTIONS = (1.1 * SESSIONS)
+	  
+These paramters can't be modified in memory. You have to modify the spfile only (scope=spfile) and bounce the instance.
+
+   sql> alter system set processes=500 scope=spfile;
+   sql> alter system set sessions=555 scope=spfile;
+   sql> alter system set transactions=610 scope=spfile;
+   sql> shutdown abort
+   sql> startup
+   

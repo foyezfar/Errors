@@ -1,0 +1,15 @@
+https://sunnykichloo.wordpress.com/2019/06/10/error-in-invoking-target-agent-nmhs-of-make-file-ins_emagent-mk-while-installing-oracle/
+
+
+
+
+
+
+Solution:
+
+To fix edit the ins_emagent.mk file and change the following line in $ORACLE_HOME/sysman/lib/ins_emagent.mk
+
+$(MK_EMAGENT_NMECTL)
+to
+
+$(MK_EMAGENT_NMECTL) -lnnz11

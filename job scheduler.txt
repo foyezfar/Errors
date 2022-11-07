@@ -1,0 +1,36 @@
+Grant CREATE JOB to user;
+Grant EXECUTE ANY PROGRAM to user;
+Grant EXECUTE ANY CLASS to user;
+Grant MANAGE SCHEDULER CLASS to user;
+
+
+ps -ef | grep -i cjq
+
+SQL> show parameter job_queue_processes;
+
+
+SQL> exec dbms_scheduler.set_scheduler_attribute('SCHEDULER_DISABLED', 'TRUE');
+PL/SQL procedure successfully completed.
+
+SQL> alter system set job_queue_processes=0;
+System altered.
+
+SQL> exec dbms_ijob.set_enabled(FALSE);
+PL/SQL procedure successfully completed.
+
+SQL> exec dbms_ijob.set_enabled(TRUE);
+PL/SQL procedure successfully completed.
+
+SQL> alter system set job_queue_processes=4000;
+System altered.
+
+SQL> exec dbms_scheduler.set_scheduler_attribute('SCHEDULER_DISABLED', 'FALSE');
+PL/SQL procedure successfully completed.
+
+
+
+https://renaps.com/en/blog/how-to/known-issues-and-bugs-using-the-scheduler
+https://blog.pythian.com/oracle-scheduler-job-is-not-running-as-expected-after-bouncing-databases/
+http://facedba.blogspot.com/2014/05/dbmsscheduler-jobs-are-not-running-case.html
+http://oradbatips.blogspot.com/2007/03/tip-31-jobs-in-dbajobs-are-not-running.html
+http://erpondb.blogspot.com/2011/02/oracle-cjq0-process-and-j000-process.html#:~:text=Oracle%20slave%20processes%20(J000%20%E2%80%93%20J999,and%20stop%20the%20CJQ0%20process.

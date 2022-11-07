@@ -1,0 +1,89 @@
+select utl_inaddr.get_host_address(sys_context('userenv','server_host')) from dual;
+
+$ sqlplus hr/hr
+SQL> select UTL_INADDR.get_host_name() from dual;
+select UTL_INADDR.get_host_name() from dual
+       *
+ERROR at line 1:
+ORA-24247: network access denied by access control list (ACL)
+ORA-06512: at "SYS.UTL_INADDR", line 4
+ORA-06512: at "SYS.UTL_INADDR", line 35
+ORA-06512: at line 1
+
+
+Solution to ORA-2424
+======================================
+Create ACL
+-----------------------
+Create an ACL: In this case, we create an ACL with a initial user HR, and the privilege is resolve.
+
+BEGIN
+  DBMS_NETWORK_ACL_ADMIN.CREATE_ACL (
+  acl => 'Connect_Access.xml',
+  description => 'Connect Network',
+  principal => 'HR',
+  is_grant => TRUE,
+  privilege => 'resolve',
+  start_date => NULL,
+  end_date => NULL);
+END;
+/
+
+
+Assign ACL
+-------------------------------
+Assign the ACL to a specific network: We open the widest scope '*' to users.
+
+BEGIN
+  DBMS_NETWORK_ACL_ADMIN.ASSIGN_ACL ( acl => 'Connect_Access.xml',
+  host => '*',
+  lower_port => NULL,
+  upper_port => NULL);
+END;
+/
+
+
+If there is any other user asks for a privilege to connect, you can add a privilege to the ACL for this user.
+------------------------------------------------
+Add Privilege
+Add another user to this ACL: We give user SH a privilege of connect.
+
+BEGIN
+  DBMS_NETWORK_ACL_ADMIN.ADD_PRIVILEGE (
+  acl => 'Connect_Access.xml',
+  principal => 'SH',
+  is_grant => TRUE,
+  privilege => 'connect',
+  position => NULL,
+  start_date => NULL,
+  end_date => NULL);
+END;
+/
+
+
+
+After creating the ACL, let's make sure the setting matched our expectation.
+
+
+$ sqlplus / as sysdba
+SQL> column acl format a30;
+SQL> SELECT acl FROM DBA_NETWORK_ACLS;
+
+ACL
+------------------------------
+/sys/acls/Connect_Access.xml
+
+SQL> column principal format a5;
+SQL> column privilege format a10;
+SQL> SELECT acl, principal, privilege FROM DBA_NETWORK_ACL_PRIVILEGES;
+
+ACL                            PRINC PRIVILEGE
+------------------------------ ----- ----------
+/sys/acls/Connect_Access.xml   HR    resolve
+/sys/acls/Connect_Access.xml   SH    connect
+
+
+
+grant execute on utl_inaddr to HR;
+
+https://logic.edchen.org/how-to-resolve-ora-24247-network-access-denied-by-access-control-list-acl/
